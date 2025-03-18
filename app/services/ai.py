@@ -12,7 +12,7 @@ from app.services.cache import redis_service
 logger = logging.getLogger(__name__)
 
 # Gemini API configuration
-GEMINI_API_KEY = "AIzaSyDQJkSvbZHaXdJaBv7Ofh6ArGykdMDwl6U"
+GEMINI_API_KEY = "Your api key"
 GEMINI_MODEL = "gemini-2.0-flash"
 GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
