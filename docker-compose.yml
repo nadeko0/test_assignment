@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: notes-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - app-data:/app/data
+    environment:
+      - REDIS_HOST=redis
+      - DATABASE_URL=sqlite+aiosqlite:///data/notes.db
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - notes-network
+
+  redis:
+    image: redis:alpine
+    container_name: notes-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - notes-network
+
+networks:
+  notes-network:
+    driver: bridge
+
+volumes:
+  app-data:
+  redis-data:
