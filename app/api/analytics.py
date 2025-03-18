@@ -15,11 +15,6 @@ async def get_analytics(
     response: Response,
     session: AsyncSession = Depends(get_session)
 ):
-    """
-    Get analytics data about notes using Gemini API for text analysis.
-    Returns statistics including total word count, average note length,
-    common words, and top longest/shortest notes.
-    """
     # Get user ID from cookie (for authorization context, not used in analytics)
     user_id = await get_or_create_user_id(request, response)
     

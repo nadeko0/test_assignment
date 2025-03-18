@@ -17,20 +17,17 @@ REDIS_PREFIX = "notes_app:"
 DEFAULT_TTL = 3600
 
 class RedisService:
-    """Service for Redis caching with TTL."""
     
     _instance = None
     _redis_client = None
     
     def __new__(cls):
-        """Singleton pattern to ensure only one Redis connection."""
         if cls._instance is None:
             cls._instance = super(RedisService, cls).__new__(cls)
             cls._instance._initialize()
         return cls._instance
     
     def _initialize(self):
-        """Initialize Redis connection."""
         try:
             self._redis_client = redis.Redis(
                 host=REDIS_HOST,
@@ -45,7 +42,6 @@ class RedisService:
             self._redis_client = None
     
     async def is_connected(self) -> bool:
-        """Check if Redis is connected."""
         if not self._redis_client:
             return False
         try:
@@ -54,7 +50,6 @@ class RedisService:
             return False
     
     async def set_value(self, key: str, value: Any, ttl: int = DEFAULT_TTL) -> bool:
-        """Set a value in Redis with TTL."""
         if not await self.is_connected():
             logger.warning("Redis not connected, skipping cache operation")
             return False
@@ -69,7 +64,6 @@ class RedisService:
             return False
     
     async def get_value(self, key: str) -> Optional[Any]:
-        """Get a value from Redis."""
         if not await self.is_connected():
             logger.warning("Redis not connected, skipping cache operation")
             return None
@@ -85,7 +79,6 @@ class RedisService:
             return None
     
     async def delete_value(self, key: str) -> bool:
-        """Delete a value from Redis."""
         if not await self.is_connected():
             logger.warning("Redis not connected, skipping cache operation")
             return False
@@ -99,19 +92,15 @@ class RedisService:
             return False
     
     # Helper methods for note summary caching
-    
     async def get_note_summary(self, note_id: int, language: str = "en") -> Optional[dict]:
-        """Get cached summary for a note."""
         cache_key = f"summary:{note_id}:{language}"
         return await self.get_value(cache_key)
     
     async def set_note_summary(self, note_id: int, summary_data: dict, language: str = "en") -> bool:
-        """Cache a note summary with TTL."""
         cache_key = f"summary:{note_id}:{language}"
         return await self.set_value(cache_key, summary_data, ttl=DEFAULT_TTL)
     
     async def invalidate_note_summary(self, note_id: int, language: str = "en") -> bool:
-        """Invalidate cached summary for a note."""
         cache_key = f"summary:{note_id}:{language}"
         return await self.delete_value(cache_key)
 

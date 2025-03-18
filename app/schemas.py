@@ -3,7 +3,6 @@ from typing import Dict, List, Optional, Any, ClassVar
 from pydantic import BaseModel, Field, computed_field, TypeAdapter
 
 class NoteBase(BaseModel):
-    """Base schema for note data."""
     title: str = Field(..., min_length=1, max_length=255, description="Note title")
     content: str = Field(..., min_length=1, description="Note content text")
     
@@ -17,11 +16,9 @@ class NoteBase(BaseModel):
     }
 
 class NoteCreate(NoteBase):
-    """Schema for creating a new note."""
     pass
 
 class NoteUpdate(BaseModel):
-    """Schema for updating an existing note."""
     title: Optional[str] = Field(None, min_length=1, max_length=255, description="Updated note title")
     content: Optional[str] = Field(None, min_length=1, description="Updated note content")
     
@@ -35,18 +32,15 @@ class NoteUpdate(BaseModel):
     }
 
 class NoteVersion(BaseModel):
-    """Schema representing a version of a note."""
     title: str
     content: str
     updated_at: datetime
     
     @computed_field
     def word_count(self) -> int:
-        """Calculate the word count of the note content."""
         return len(self.content.split())
 
 class NoteResponse(NoteBase):
-    """Schema for note response including metadata."""
     id: int
     created_at: datetime
     updated_at: datetime
@@ -58,7 +52,6 @@ class NoteResponse(NoteBase):
     
     @computed_field
     def version_count(self) -> int:
-        """Get the number of versions for this note."""
         return len(self.versions)
     
     model_config = {
@@ -66,7 +59,6 @@ class NoteResponse(NoteBase):
     }
 
 class NoteSummary(BaseModel):
-    """Schema for AI-generated note summary."""
     note_id: int
     original_title: str
     summary: str
@@ -86,7 +78,6 @@ class NoteSummary(BaseModel):
     }
 
 class AnalyticsResponse(BaseModel):
-    """Schema for analytics response."""
     total_notes_count: int
     active_notes_count: int
     deleted_notes_count: int

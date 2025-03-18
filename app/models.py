@@ -10,8 +10,6 @@ def utc_now():
     return datetime.now(UTC)
 
 class Note(Base):
-    """Note model with version history in JSONB field."""
-    
     __tablename__ = "notes"
     
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -57,9 +55,6 @@ class Note(Base):
     )
 
     def add_version(self):
-        """Add the current state as a new version in the history."""
-        # Make a copy of the current versions to avoid reference issues
-        # This is especially important for SQLite with JSON fields
         current_versions = dict(self.versions) if self.versions else {}
         
         # Create new version entry
@@ -82,8 +77,6 @@ class Note(Base):
         next_version = "1" if not version_numbers else str(max(version_numbers) + 1)
         current_versions[next_version] = new_version
         
-        # Create a new dict to ensure it's seen as a change by SQLAlchemy
-        # This helps with proper detection of changes in JSON fields
         self.versions = dict(current_versions)
         
         return self

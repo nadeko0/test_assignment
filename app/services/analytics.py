@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 # Simple tokenizer for basic word counting
 def simple_tokenize(text):
-    """Simple word tokenizer that splits on whitespace and punctuation but preserves emails and URLs."""
     # First extract emails and URLs
     emails_urls = []
     
@@ -57,7 +56,6 @@ COMMON_STOPWORDS = {
 
 # Gemini API for text analysis
 async def analyze_text_with_gemini(contents: List[str]) -> Dict[str, Any]:
-    """Use Gemini API for text analysis."""
     if not contents:
         return {
             "word_count": 0,
@@ -152,7 +150,6 @@ async def analyze_text_with_gemini(contents: List[str]) -> Dict[str, Any]:
         return self_analyze_text(full_text)
 
 def self_analyze_text(text: str) -> Dict[str, Any]:
-    """Perform simple text analysis without external dependencies."""
     words = simple_tokenize(text)
     
     # Filter out stopwords
@@ -171,7 +168,6 @@ def self_analyze_text(text: str) -> Dict[str, Any]:
     }
 
 class AnalyticsService:
-    """Service for analyzing notes data and generating statistics."""
     
     CACHE_KEY = "analytics:data"
     CACHE_TTL = 3600  # 1 hour in seconds
@@ -183,14 +179,6 @@ class AnalyticsService:
         return cls._instance
     
     async def calculate_analytics(self, session: AsyncSession, force_refresh=False) -> Dict[str, Any]:
-        """
-        Calculate analytics data from notes.
-        - Total word count across all notes
-        - Average note length
-        - Most common words
-        - Top 3 longest and shortest notes
-        - Distribution of notes by date
-        """
         # Check cache first unless force refresh is requested
         if not force_refresh:
             # Use injected cache in tests, otherwise use redis_service
@@ -237,7 +225,6 @@ class AnalyticsService:
             }
             
     async def _get_notes_analytics(self, session: AsyncSession) -> Dict[str, Any]:
-        """Get analytics data from notes."""
         import asyncio
         
         # Query active notes

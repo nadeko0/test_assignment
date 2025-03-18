@@ -2,7 +2,6 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy.orm import DeclarativeBase
 import os
 
-# Ensure that the URL starts with sqlite+aiosqlite://
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///data/notes.db")
 
 # Create directory for the database
@@ -28,12 +27,10 @@ class Base(DeclarativeBase):
     pass
 
 async def init_db():
-    """Initialize the database by creating all tables."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 async def get_session():
-    """Dependency for getting an async session."""
     async with async_session_maker() as session:
         try:
             yield session

@@ -28,7 +28,6 @@ async def get_or_create_user_id(
     response: Response,
     current_time: datetime = Depends(get_current_time)
 ) -> str:
-    """Get user ID from cookies or create a new one."""
     # For tests, return a fixed value
     if request.headers.get("testing") == "true":
         return "test-user-id"
@@ -48,7 +47,6 @@ async def get_or_create_user_id(
     return user_id
 
 async def check_note_limit(user_id: str, session: AsyncSession) -> bool:
-    """Check if user has reached the limit of 10 notes."""
     query = select(func.count()).select_from(Note).where(
         Note.user_id == user_id,
         Note.is_deleted == False
@@ -60,7 +58,6 @@ async def check_note_limit(user_id: str, session: AsyncSession) -> bool:
 
 # Factory functions to reduce code duplication
 def create_note_query(note_id: int, user_id: str, include_deleted: bool = False):
-    """Create a query to get a specific note by ID."""
     query = select(Note).where(
         Note.id == note_id,
         Note.user_id == user_id
@@ -72,7 +69,6 @@ def create_note_query(note_id: int, user_id: str, include_deleted: bool = False)
     return query
 
 async def get_user_note(note_id: int, user_id: str, session: AsyncSession, include_deleted: bool = False):
-    """Get a user's note by ID, raising 404 if not found."""
     query = create_note_query(note_id, user_id, include_deleted)
     result = await session.execute(query)
     note = result.scalar_one_or_none()
@@ -94,14 +90,12 @@ async def get_user_id(
     request: Request, 
     response: Response
 ) -> str:
-    """Dependency to get the current user ID."""
     return await get_or_create_user_id(request, response)
 
 async def check_user_limit(
     user_id: str = Depends(get_user_id),
     session: AsyncSession = Depends(get_session)
 ) -> None:
-    """Dependency to check if user has reached the note limit."""
     if await check_note_limit(user_id, session):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -116,7 +110,6 @@ async def get_notes(
     user_id: str = Depends(get_user_id),
     session: AsyncSession = Depends(get_session)
 ):
-    """Get list of notes with pagination."""
     # Build query based on parameters
     query = select(Note).where(Note.user_id == user_id)
     
@@ -135,7 +128,6 @@ async def get_note(
     user_id: str = Depends(get_user_id),
     session: AsyncSession = Depends(get_session)
 ):
-    """Get a specific note by ID."""
     return await get_user_note(note_id, user_id, session)
 
 @router.post("", response_model=NoteResponse, status_code=status.HTTP_201_CREATED)
@@ -144,7 +136,6 @@ async def create_note(
     user_id: str = Depends(get_user_id),
     session: AsyncSession = Depends(get_session)
 ):
-    """Create a new note."""
     # Check user limit after validation
     await check_user_limit(user_id, session)
     # Create new note
@@ -171,7 +162,6 @@ async def update_note(
     session: AsyncSession = Depends(get_session),
     current_time: datetime = Depends(get_current_time)
 ):
-    """Update an existing note and store the previous version in history."""
     # Get the note
     note = await get_user_note(note_id, user_id, session)
     
@@ -201,7 +191,6 @@ async def delete_note(
     session: AsyncSession = Depends(get_session),
     current_time: datetime = Depends(get_current_time)
 ):
-    """Soft delete or permanently delete a note."""
     # Get the note with broader query (include already deleted notes)
     note = await get_user_note(note_id, user_id, session, include_deleted=True)
     
@@ -224,7 +213,6 @@ async def restore_note(
     user_id: str = Depends(get_user_id),
     session: AsyncSession = Depends(get_session)
 ):
-    """Restore a deleted note from trash."""
     # Check if user has reached the limit
     if await check_note_limit(user_id, session):
         raise HTTPException(
@@ -259,7 +247,6 @@ async def get_note_versions(
     user_id: str = Depends(get_user_id),
     session: AsyncSession = Depends(get_session)
 ):
-    """Get version history for a note."""
     # Get the note (include deleted notes)
     note = await get_user_note(note_id, user_id, session, include_deleted=True)
     

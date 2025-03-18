@@ -37,24 +37,15 @@ SUMMARY_PROMPTS = {
 }
 
 class AIService:
-    """Service for AI-powered note summarization using Gemini API."""
     
     def __init__(self, cache_service=None):
-        """Initialize the AI service with Gemini API."""
         self.api_key = GEMINI_API_KEY
         self.model = GEMINI_MODEL
         
         # Initialize Google Generative AI client
         genai.configure(api_key=self.api_key)
-        
-        # Keep cache_service parameter for backwards compatibility
-        # but we'll use redis_service directly for better testability
     
     async def summarize_note(self, note_id: int, title: str, content: str, language: str = "en") -> Optional[Dict]:
-        """
-        Generate a summary of a note using Gemini API.
-        Attempts to get from cache first, then calls API if needed.
-        """
         # Validate language
         if language not in SUPPORTED_LANGUAGES:
             logger.warning(f"Unsupported language: {language}, falling back to English")
@@ -95,7 +86,6 @@ class AIService:
             return None
     
     async def _call_gemini_api(self, title: str, content: str, language: str = "en") -> Optional[str]:
-        """Call Gemini API to generate summary."""
         try:
             prompt = SUMMARY_PROMPTS.get(language, SUMMARY_PROMPTS["en"])
             full_prompt = f"{prompt}\n\nTitle: {title}\n\nContent: {content}"

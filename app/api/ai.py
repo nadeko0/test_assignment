@@ -20,7 +20,6 @@ async def summarize_note(
     language: str = Query("en", description="Language code for summarization"),
     session: AsyncSession = Depends(get_session)
 ):
-    """Generate an AI summary of a note in the specified language."""
     # Validate language
     if language not in SUPPORTED_LANGUAGES:
         raise HTTPException(
@@ -64,7 +63,6 @@ async def summarize_note(
 
 @router.get("/languages", response_model=dict)
 async def get_supported_languages():
-    """Get list of supported languages for AI summarization."""
     return {
         "supported_languages": SUPPORTED_LANGUAGES
     }
